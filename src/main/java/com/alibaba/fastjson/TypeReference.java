@@ -1,7 +1,9 @@
 package com.alibaba.fastjson;
 
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
+import com.alibaba.fastjson.util.TypeUtils;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -62,11 +64,14 @@ public class TypeReference<T> {
 
         int actualIndex = 0;
         for (int i = 0; i < argTypes.length; ++i) {
-            if (argTypes[i] instanceof TypeVariable) {
+            if (argTypes[i] instanceof TypeVariable &&
+                    actualIndex < actualTypeArguments.length) {
                 argTypes[i] = actualTypeArguments[actualIndex++];
-                if (actualIndex >= actualTypeArguments.length) {
-                    break;
-                }
+            }
+            // fix for openjdk and android env
+            if (argTypes[i] instanceof GenericArrayType) {
+                argTypes[i] = TypeUtils.checkPrimitiveArray(
+                        (GenericArrayType) argTypes[i]);
             }
         }
 
