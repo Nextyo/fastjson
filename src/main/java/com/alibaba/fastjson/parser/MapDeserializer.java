@@ -1,18 +1,26 @@
 package com.alibaba.fastjson.parser;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
+
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 class MapDeserializer implements ObjectDeserializer {
     public static MapDeserializer instance = new MapDeserializer();
@@ -39,6 +47,14 @@ class MapDeserializer implements ObjectDeserializer {
                 ParameterizedType parameterizedType = (ParameterizedType) type;
                 Type keyType = parameterizedType.getActualTypeArguments()[0];
                 Type valueType = parameterizedType.getActualTypeArguments()[1];
+
+                // fix bug in jdk1.6 environment
+                if (keyType instanceof GenericArrayType) {
+                    keyType = TypeUtils.checkPrimitiveArray((GenericArrayType) keyType);
+                }
+                if (valueType instanceof GenericArrayType) {
+                    valueType = TypeUtils.checkPrimitiveArray((GenericArrayType) valueType);
+                }
 
                 if (String.class == keyType) {
                     return (T) parseMap(parser, (Map<String, Object>) map, valueType, fieldName);

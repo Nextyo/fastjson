@@ -68,7 +68,8 @@ public class TypeReference<T> {
                     actualIndex < actualTypeArguments.length) {
                 argTypes[i] = actualTypeArguments[actualIndex++];
             }
-            // fix for openjdk and android env
+
+            // fix bug in jdk1.6 environment
             if (argTypes[i] instanceof GenericArrayType) {
                 argTypes[i] = TypeUtils.checkPrimitiveArray(
                         (GenericArrayType) argTypes[i]);

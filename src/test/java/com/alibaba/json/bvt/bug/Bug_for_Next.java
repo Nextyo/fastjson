@@ -1,3 +1,4 @@
+
 package com.alibaba.json.bvt.bug;
 
 import com.alibaba.fastjson.JSON;
@@ -8,15 +9,21 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class Bug_for_Next extends TestCase {
 
     public static void main(String[] args) throws Exception {
         Result result = JUnitCore.runClasses(Bug_for_Next.class);
         for (Failure fail : result.getFailures()) {
+            System.out.println(fail.getDescription());
             System.out.println(fail.toString());
+            System.out.println(fail.getTrace());
         }
         if (result.wasSuccessful()) {
             System.out.println("All tests finished successfully...");
@@ -167,8 +174,31 @@ public class Bug_for_Next extends TestCase {
             showMesg("bsmap key" + i++ + " : " + byteArrayToHexString(bs));
         }
 
+        showTitle("9=====================================");
+        TestBean t = new TestBean();
+        t.b = 0;
+        t.i = 123456;
+        t.blist = blist;
+        t.simap = simap;
+        text = JSON.toJSONString(t);
+        showMesg("t json : " + text);
+        t = JSON.parseObject(text, TestBean.class);
+        showMesg("t : " + t);
+
+        Map<String, TestBean> sttmap = new HashMap<String, TestBean>();
+        sttmap.put("key1", t);
+        sttmap.put("key2", new TestBean());
+        text = JSON.toJSONString(sttmap);
+        showMesg("sttmap json : " + text);
+        sttmap = JSON.parseObject(text, new TypeReference<Map<String, TestBean>>(String.class, TestBean.class){});
+        showMesg("sttmap : " + sttmap);
+        showMesg("key1 : " + sttmap.get("key1"));
+        showMesg("key2 : " + sttmap.get("key2"));
+
         Map<String, TestBean[]> stmap = new HashMap<String, TestBean[]>();
-        stmap.put("key1", new TestBean[]{ new TestBean(), new TestBean()});
+        t = new TestBean();
+        //t.ilist = ilist;
+        stmap.put("key1", new TestBean[]{ t, new TestBean()});
         stmap.put("key2", new TestBean[]{ new TestBean(), new TestBean(), new TestBean()});
         text = JSON.toJSONString(stmap);
         showMesg("stmap json : " + text);
@@ -238,6 +268,10 @@ public class Bug_for_Next extends TestCase {
         int[] is = new int[]{ 753, 159 };
         String s;
 
+        List<byte[]> blist;
+
+        Map<String, int[]> simap;
+
         public byte getB() {
             return b;
         }
@@ -278,6 +312,22 @@ public class Bug_for_Next extends TestCase {
             this.s = s;
         }
 
+        public List<byte[]> getBlist() {
+            return blist;
+        }
+
+        public void setBlist(List<byte[]> blist) {
+            this.blist = blist;
+        }
+
+        public Map<String, int[]> getSimap() {
+            return simap;
+        }
+
+        public void setSimap(Map<String, int[]> simap) {
+            this.simap = simap;
+        }
+
         @Override
         public String toString() {
             return "TestBean{" +
@@ -286,6 +336,8 @@ public class Bug_for_Next extends TestCase {
                     ", i=" + i +
                     ", is=" + Arrays.toString(is) +
                     ", s='" + s + '\'' +
+                    ", blist=" + blist +
+                    ", simap=" + simap +
                     '}';
         }
     }
